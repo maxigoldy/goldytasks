@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Calendar, Tag, Star, Clock } from 'lucide-react';
+import { X, Calendar, Tag, Star, Clock, Film, Tv } from 'lucide-react';
 import { useTodos } from '../contexts/TodoContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface TodoFormProps {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface TodoFormProps {
 
 const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
   const { addTodo, categories } = useTodos();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -16,8 +18,15 @@ const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
     dueDate: '',
     scheduledDate: '',
     tags: [] as string[],
+    streamingPlatform: '',
   });
   const [tagInput, setTagInput] = useState('');
+
+  const isMovieNight = formData.category === '5'; // MovieNight category
+  const streamingPlatforms = [
+    'Netflix', 'Disney+', 'Amazon Prime', 'HBO Max', 'Hulu', 
+    'Apple TV+', 'Paramount+', 'Peacock', 'YouTube', 'Other'
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +40,8 @@ const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
       dueDate: formData.dueDate || undefined,
       scheduledDate: formData.scheduledDate || undefined,
       tags: formData.tags,
+      streamingPlatform: formData.streamingPlatform || undefined,
+      isGlobalWatchlist: isMovieNight,
       completed: false,
     });
 
@@ -111,13 +122,37 @@ const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
               onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
               className="w-full px-3 py-2 bg-black-700 border border-gold-600/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent"
             >
-              {categories.map((category) => (
+              {categories.filter(cat => 
+                cat.id !== '5' || user?.isFamilyMember // Only show MovieNight to family members
+              ).map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.icon} {category.name}
                 </option>
               ))}
             </select>
           </div>
+
+          {/* Streaming Platform (only for MovieNight) */}
+          {isMovieNight && (
+            <div>
+              <label className="block text-sm font-medium text-gold-300 mb-2">
+                <Film className="w-4 h-4 inline mr-1" />
+                Streaming Platform
+              </label>
+              <select
+                value={formData.streamingPlatform}
+                onChange={(e) => setFormData(prev => ({ ...prev, streamingPlatform: e.target.value }))}
+                className="w-full px-3 py-2 bg-black-700 border border-gold-600/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent"
+              >
+                <option value="">Select platform...</option>
+                {streamingPlatforms.map((platform) => (
+                  <option key={platform} value={platform}>
+                    {platform}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Priority */}
           <div>

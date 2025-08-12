@@ -10,6 +10,9 @@ export interface Todo {
   dueDate?: string;
   scheduledDate?: string;
   priority: 'low' | 'medium' | 'high';
+  streamingPlatform?: string;
+  movieDbId?: string;
+  isGlobalWatchlist?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +52,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { id: '2', name: 'Personal', color: 'blue', icon: '🏠' },
     { id: '3', name: 'Health', color: 'green', icon: '💪' },
     { id: '4', name: 'Learning', color: 'purple', icon: '📚' },
+    { id: '5', name: 'MovieNight', color: 'red', icon: '🎬' },
   ]);
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, Tag, Star, Clock, CheckCircle, Plus } from 'lucide-react';
 import { useTodos } from '../contexts/TodoContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
   selectedCategory: string;
@@ -9,6 +10,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ selectedCategory, onCategorySelect }) => {
   const { todos, categories } = useTodos();
+  const { user } = useAuth();
 
   const getTaskCount = (filter: string) => {
     switch (filter) {
@@ -83,7 +85,9 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedCategory, onCategorySelect })
           </button>
         </div>
         <nav className="space-y-1">
-          {categories.map((category) => (
+          {categories.filter(cat => 
+            cat.id !== '5' || user?.isFamilyMember // Only show MovieNight to family members
+          ).map((category) => (
             <button
               key={category.id}
               onClick={() => onCategorySelect(category.id)}
@@ -110,14 +114,20 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedCategory, onCategorySelect })
         <div className="bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30 rounded-lg p-4">
           <div className="flex items-center mb-2">
             <Star className="w-4 h-4 text-gold-500 mr-2" />
-            <span className="text-sm font-semibold text-gold-400">Premium</span>
+            <span className="text-sm font-semibold text-gold-400">Family Member</span>
           </div>
           <p className="text-xs text-gold-300 mb-3">
-            Unlock advanced features and unlimited tasks
+            Access family features and shared categories
           </p>
-          <button className="w-full py-2 bg-gradient-to-r from-gold-500 to-gold-600 text-black text-sm font-semibold rounded-lg hover:from-gold-400 hover:to-gold-500 transition-all duration-200">
-            Upgrade Now
-          </button>
+          {user?.isFamilyMember ? (
+            <div className="text-center text-green-400 text-sm font-semibold">
+              ✓ Active Member
+            </div>
+          ) : (
+            <div className="text-center text-gold-400 text-sm">
+              Contact admin for access
+            </div>
+          )}
         </div>
       </div>
     </div>

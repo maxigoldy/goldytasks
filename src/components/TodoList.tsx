@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Calendar, Tag, Star, MoreHorizontal, CheckCircle, Circle, Share, Download } from 'lucide-react';
+import { Calendar, Tag, Star, MoreHorizontal, CheckCircle, Circle, Share, Download, Film, Tv } from 'lucide-react';
 import { useTodos, Todo } from '../contexts/TodoContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface TodoListProps {
   selectedCategory: string;
@@ -9,6 +10,7 @@ interface TodoListProps {
 
 const TodoList: React.FC<TodoListProps> = ({ selectedCategory, searchQuery }) => {
   const { todos, updateTodo, deleteTodo, categories, exportToCalendar } = useTodos();
+  const { user } = useAuth();
   const [selectedTodo, setSelectedTodo] = useState<string | null>(null);
 
   const getFilteredTodos = () => {
@@ -39,6 +41,11 @@ const TodoList: React.FC<TodoListProps> = ({ selectedCategory, searchQuery }) =>
         default:
           filtered = todos.filter(todo => todo.category === selectedCategory);
       }
+    }
+
+    // Filter MovieNight category for non-family members
+    if (!user?.isFamilyMember) {
+      filtered = filtered.filter(todo => todo.category !== '5');
     }
 
     // Apply search filter
@@ -222,6 +229,22 @@ const TodoList: React.FC<TodoListProps> = ({ selectedCategory, searchQuery }) =>
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-3 h-3 text-blue-400" />
                         <span className="text-xs text-blue-400">Scheduled {formatDate(todo.scheduledDate)}</span>
+                      </div>
+                    )}
+
+                    {/* Streaming Platform */}
+                    {todo.streamingPlatform && (
+                      <div className="flex items-center space-x-1">
+                        <Tv className="w-3 h-3 text-purple-400" />
+                        <span className="text-xs text-purple-400">{todo.streamingPlatform}</span>
+                      </div>
+                    )}
+
+                    {/* Global Watchlist Badge */}
+                    {todo.isGlobalWatchlist && (
+                      <div className="flex items-center space-x-1">
+                        <Film className="w-3 h-3 text-red-400" />
+                        <span className="text-xs text-red-400">Family Watchlist</span>
                       </div>
                     )}
 
